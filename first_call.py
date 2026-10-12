@@ -6,6 +6,13 @@ from datetime import date
 
 today = date.today().isoformat()
 
+FORMAT = '{"tool": "search", "args": {"query": "..."}}'
+
+system_prompt = (
+    f"Reply only with JSON in this format: {FORMAT}. "
+    f"No text before or after. Today is {today}."
+)
+
 load_dotenv()
 
 API_KEY = os.environ["OPENAI_API_KEY"]
@@ -26,9 +33,12 @@ response = httpx.post(
         "messages": [
             {
                 "role": "system",
-                "content": f"You are a web researcher, reply only with JSON, the exact format {{{{ 'tool': 'search', 'args': {{{{ 'query': '...' }}}} }}}}, and no text before or after. Today is {today}",
+                "content": system_prompt,
             },
-            {"role": "user", "content": "Find recent news about the apoBank"},
+            {
+                "role": "user",
+                "content": "Find recent news about the apoBank",
+            },
         ],
     },
     timeout=30,
