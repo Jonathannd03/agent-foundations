@@ -34,12 +34,12 @@ def parse_tool_call(text: str) -> dict:
     if not isinstance(args, dict):
         raise ValueError("'args' must be an object")
 
-    return {"tool": data["tool"], "args": args}
+    return {"tool": data['tool'], "args": args}
 
 
 # --- Tests ---------------------------------------------------------------
 
-# Test 1: clean JSON
+""" # Test 1: clean JSON
 result = parse_tool_call('{"tool": "search", "args": {"query": "apoBank"}}')
 assert result == {"tool": "search", "args": {"query": "apoBank"}}
 
@@ -57,4 +57,22 @@ try:
 except ValueError:
     pass
 
-print("All tests passed")
+try:
+    parse_tool_call("I don't know")
+    assert False, "Expect ValueError"
+except ValueError:
+    pass
+
+try:
+    parse_tool_call("{'tool': 'search', 'args': 'apoBank'}")
+    assert False, 'Expected ValueError'
+except ValueError:
+    pass
+
+try:
+    parse_tool_call('{"tool": "search", "args": "apoBank"}')
+    assert False, 'Expected ValueError'
+except ValueError:
+    pass
+
+print("All tests passed") """
