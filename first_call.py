@@ -13,6 +13,7 @@ system_prompt = (
     f"No text before or after. Today is {today}."
 )
 
+
 load_dotenv()
 
 API_KEY = os.environ["OPENAI_API_KEY"]
@@ -48,8 +49,8 @@ if response.status_code != 200:
         f"Request failed with status code {response.status_code}: {response.text}"
     )
 data = response.json()
-print(data)
-# text = data["choices"][0]["message"]["content"]
+text = data["choices"][0]["message"]["content"]
 # total_token = data["usage"]["total_tokens"]
 
-# result = parse_tool_call(text)
+result = parse_tool_call(text)
+print(result)
