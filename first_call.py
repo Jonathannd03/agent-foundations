@@ -6,12 +6,27 @@ from datetime import date
 
 today = date.today().isoformat()
 
-FORMAT = '{"tool": "search", "args": {"query": "..."}}'
 
-system_prompt = (
-    f"Reply only with JSON in this format: {FORMAT}. "
-    f"No text before or after. Today is {today}."
-)
+tool = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search",
+            "description": "Search the web for recent news on a topic.",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The search query."}
+                },
+                "required": ["query"],
+                "additionalProperties": False,
+            },
+        },
+    }
+]
+
+system_prompt = f"No text before or after. Today is {today}."
 
 
 load_dotenv()
@@ -38,9 +53,10 @@ response = httpx.post(
             },
             {
                 "role": "user",
-                "content": "Find recent news about the apoBank",
+                "content": "Hi how are you?",
             },
         ],
+        "tools": tool,
     },
     timeout=30,
 )
@@ -49,8 +65,7 @@ if response.status_code != 200:
         f"Request failed with status code {response.status_code}: {response.text}"
     )
 data = response.json()
-text = data["choices"][0]["message"]["content"]
-# total_token = data["usage"]["total_tokens"]
+text = data["choices"][0]["message"]
 
-result = parse_tool_call(text)
-print(result)
+# result = parse_tool_call(text)
+print(data)
