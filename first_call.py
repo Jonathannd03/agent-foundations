@@ -3,6 +3,7 @@ import httpx
 from dotenv import load_dotenv
 from parse_tool_call import parse_tool_call
 from datetime import date
+import json
 
 today = date.today().isoformat()
 
@@ -41,6 +42,17 @@ class LLMAPIError(Exception):
     pass
 
 
+def extract_tool_call(data: dict) -> dict | None:
+    message = data['choices'][0]['message']
+
+    if 'tool_calls' in message.keys():
+        tool_name = message['tool_calls'][0]['function']['name']
+        print(f'The tool name is: {tool_name}')
+        args = json.loads(message['tool_calls'][0]['function']['arguments']) 
+        return {'tool': tool_name, 'args': args}
+    else:
+        return None
+
 response = httpx.post(
     "https://api.openai.com/v1/chat/completions",
     headers={"Authorization": f"Bearer {API_KEY}"},
@@ -53,7 +65,7 @@ response = httpx.post(
             },
             {
                 "role": "user",
-                "content": "Hi how are you?",
+                "content": "How are you?",
             },
         ],
         "tools": tool,
@@ -67,5 +79,5 @@ if response.status_code != 200:
 data = response.json()
 text = data["choices"][0]["message"]
 
-# result = parse_tool_call(text)
-print(data)
+result = extract_tool_call(data)
+print(result)
