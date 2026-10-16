@@ -30,33 +30,42 @@ messages = [
 ]
 
 
-response = httpx.post(
-    "https://api.openai.com/v1/chat/completions",
-    headers={"Authorization": f"Bearer {API_KEY}"},
-    json={
-        "model": MODEL,
-        "messages": messages,
-        "tools": tools,
-    },
-    timeout=30,
-)
-
-response_status = response.status_code
-result = response.json()
-
-
-if response_status != 200:
-    raise LLMAPIError(
-        f"Request failed with status code {response.status_code}: {response.text}"
+def call_llm(messages: list, tools: list) -> dict:
+    response = httpx.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {API_KEY}"},
+        json={
+            "model": MODEL,
+            "messages": messages,
+            "tools": tools,
+        },
+        timeout=30,
     )
-call = extract_tool_call(result)
+    if response.status_code != 200:
+        raise LLMAPIError(
+            f"Request failed with status code {response.status_code}: {response.text}"
+        )
+    return response.json()
 
-if call is None:
-    print(result)
-else:
+
+MAX_STEPS = 3
+reached_max = True
+
+for step in range(MAX_STEPS):
+    print(f"Step number: {step + 1}")
+    data = call_llm(messages, tools)
+    call = extract_tool_call(data)
+
+    if call is None:
+        print("Final Answer:")
+        print(data["choices"][0]["message"]["content"])
+        reached_max = False
+        break
+
     func = TOOL_FUNCTIONS[call["tool"]]
     tool_result = func(**call["args"])
-    messages.append(result["choices"][0]["message"])
+
+    messages.append(data["choices"][0]["message"])
     messages.append(
         {
             "role": "tool",
@@ -64,4 +73,8 @@ else:
             "content": tool_result,
         }
     )
-    print(result)
+    print(f"Response: {data}")
+
+
+if reached_max:
+    print("Stopped: reached max steps without a final answer")

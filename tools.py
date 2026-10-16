@@ -26,8 +26,8 @@ def search(query: str) -> str:
     Returns:
         str: The search results.
     """
-    headline1 = f"Alphabet Inc. (Google's parent company) has 190,820 full-time employees worldwide as of December 31, 2025"
-    return f"Search results for {query} : {headline1}"
+    headline1 = f"1. apoBank reports stable Q3 results. 2. apoBank launches new app for medical practices. 3. apoBank expands advisory for young doctors."
+    return f"Search results for {query}: {headline1}"
 
 
 TOOL_FUNCTIONS = {"search": search}
