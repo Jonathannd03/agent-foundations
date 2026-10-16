@@ -36,6 +36,7 @@ def test_tool_call_response_with_right_dict():
     assert result == {
         "tool": "search",
         "args": {"query": "Google number of employees 2026"},
+        "id": "call_JURA0cNaXWXR6SHJPoi5n35l",
     }
 
 
@@ -59,17 +60,18 @@ def test_tool_call_response_without_tool_calls():
     result = extract_tool_call(response)
     assert result == None
 
+
 def test_tool_call_response_with_tool_calls_is_none():
     response = {
         "choices": [
             {
-                 "index": 0,
+                "index": 0,
                 "message": {
                     "role": "assistant",
                     "content": None,
                     "refusal": None,
                     "annotations": [],
-                    "tool_calls": None
+                    "tool_calls": None,
                 },
                 "logprobs": None,
                 "finish_reason": "tool_calls",
@@ -78,6 +80,7 @@ def test_tool_call_response_with_tool_calls_is_none():
     }
     result = extract_tool_call(response)
     assert result == None
+
 
 def test_tool_call_response_with_broken_json():
     response = {

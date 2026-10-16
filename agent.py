@@ -18,21 +18,24 @@ prompt = f"What are some news from the apoBank lately?"
 
 tools = [SEARCH_SCHEMA]
 
+messages = [
+    {
+        "role": "system",
+        "content": f"Today is {today}.",
+    },
+    {
+        "role": "user",
+        "content": prompt,
+    },
+]
+
+
 response = httpx.post(
     "https://api.openai.com/v1/chat/completions",
     headers={"Authorization": f"Bearer {API_KEY}"},
     json={
         "model": MODEL,
-        "messages": [
-            {
-                "role": "system",
-                "content": f"Today is {today}.",
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
-        ],
+        "messages": messages,
         "tools": tools,
     },
     timeout=30,
@@ -53,4 +56,12 @@ if call is None:
 else:
     func = TOOL_FUNCTIONS[call["tool"]]
     tool_result = func(**call["args"])
-    print(tool_result)
+    messages.append(result["choices"][0]["message"])
+    messages.append(
+        {
+            "role": "tool",
+            "tool_call_id": call["id"],
+            "content": tool_result,
+        }
+    )
+    print(result)
