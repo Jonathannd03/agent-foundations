@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from parse_tool_call import parse_tool_call
 from datetime import date
 from tool_calls import extract_tool_call
+from error import LLMAPIError
 
 today = date.today().isoformat()
 
@@ -36,12 +37,6 @@ API_KEY = os.environ["OPENAI_API_KEY"]
 MODEL = os.environ["OPENAI_MODEL"]
 
 
-class LLMAPIError(Exception):
-    """Custom exception for LLM API errors."""
-
-    pass
-
-
 response = httpx.post(
     "https://api.openai.com/v1/chat/completions",
     headers={"Authorization": f"Bearer {API_KEY}"},
@@ -53,7 +48,7 @@ response = httpx.post(
                 "content": system_prompt,
             },
             {
-                "role": "user", 
+                "role": "user",
                 "content": "how are you?",
             },
         ],
